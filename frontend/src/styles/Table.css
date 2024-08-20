@@ -1,0 +1,16 @@
+/* src/styles/Table.css */
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .transaction-table th,
+  .transaction-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+  }

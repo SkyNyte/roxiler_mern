@@ -1,34 +1,30 @@
-const express = require("express");
-require("dotenv").config();
-const connectToMongo = require("./config/database");
-const router = require("./routes/transactionsRoutes"); // Corrected the path
-const cors = require("cors");
+// app.js
+const express = require('express');
+const db = require('./config/db');
 
 const app = express();
-app.use(express.json());
+const port = 5173;
 
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.get('/transactions', (req, res) => {
+  const month = parseInt(req.query.month) || 3; // Default to March
+  const search = req.query.search || '';
 
-// Set default port to 3000 if PORT is undefined
-const port = process.env.PORT || 3000;
+  let sql = 'SELECT * FROM transactions WHERE month = ${month}';
 
-app.get("/", (req, res) => {
-  res.json("Hello World!");
+  if (search) {
+    sql += ` AND (title LIKE '%${search}%' OR description LIKE '%${search}%' OR price LIKE '%${search}%')`;
+  }
+
+  db.all(sql, (err, rows) => {
+    if (err) {
+      console.error(err.message);
+      res.status(500).send('Error retrieving transactions');
+    } else {
+      res.json(rows);
+    }
+  });
 });
 
-app.use("/api", router);
-
-// Ensure the database connection is properly initialized before starting the server
-app.listen(port, async () => {
-  try {
-    await connectToMongo(); // Invoke the function to connect to MongoDB
-    console.log("Connected To MongoDB");
-  } catch (error) {
-    console.log("Failed to connect to MongoDB:", error.message);
-  }
-  console.log('Listening on port 3000');
+app.listen(port, () => {
+  console.log('Server listening at http://localhost:${port}');
 });
